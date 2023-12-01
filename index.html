@@ -51,14 +51,15 @@
     </style>
 </head>
 <body>
-    <h1>To-Do List</h1>
-    <div>
-        <label for="inputName">New Task:</label>
-        <input type="text" id="inputName" placeholder="Task name">
-        <button id="addBtn">Add</button>
+    <div class="todo-container">
+        <h1>To-Do List</h1>
+        <div class="add-task">
+            <input type="text" id="taskInput" placeholder="Add a new task...">
+            <button id="addTaskBtn">Add</button>
+        </div>
+        <ul id="taskList"></ul>
+        <button id="clearTasksBtn">Delete All</button>
     </div>
-    <div id="results"></div>
-    <button id="clearBtn">Delete List</button>
     <script src="index.js"></script>
 </html>
 </body>

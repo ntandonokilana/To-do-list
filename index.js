@@ -1,68 +1,60 @@
-let todos = [];
-let resultsContainer = document.getElementById('results');
+document.addEventListener('DOMContentLoaded', function () {
+    const taskInput = document.getElementById('taskInput');
+    const addTaskBtn = document.getElementById('addTaskBtn');
+    const taskList = document.getElementById('taskList');
+    const clearTasksBtn = document.getElementById('clearTasksBtn');
+    const sortTasksBtn = document.getElementById('sortTasksBtn');
+    let todos = [];
+    addTaskBtn.addEventListener('click', addTask);
+    clearTasksBtn.addEventListener('click', clearTasks);
+    sortTasksBtn.addEventListener('click', sortTasks);
+    function addTask() {
+        const taskText = taskInput.value.trim();
 
-const renderTodos = () => {
-    resultsContainer.innerHTML = '';
-
-    todos.forEach(todo => {
-        const completedStyle = todo.completed ? 'text-decoration: line-through;' : '';
-
-        const todoItemDiv = document.createElement('div');
-        todoItemDiv.classList.add('todo-item');
-
-        const checkboxInput = document.createElement('input');
-        checkboxInput.type = 'checkbox';
-        checkboxInput.checked = todo.completed;
-        checkboxInput.addEventListener('change', () => toggleCompleted(todo.id));
-
-        const labelElement = document.createElement('label');
-        labelElement.style.cssText = completedStyle;
-        labelElement.textContent = `ID: ${todo.id}, Name: ${todo.name}, Created Date: ${formatDate(todo.createdDate)}`;
-
-        todoItemDiv.appendChild(checkboxInput);
-        todoItemDiv.appendChild(labelElement);
-
-        resultsContainer.appendChild(todoItemDiv);
-    });
-};
-
-const addItem = () => {
-    const inputNameElement = document.getElementById('inputName');
-    const itemName = inputNameElement.value.trim();
-
-    // Check constraints before adding a new item
-    if (itemName.length > 3 && itemName[0] === itemName[0].toUpperCase() && itemName.trim() !== '') {
-        const newTodo = {
-            id: todos.length + 1,
-            name: itemName,
-            createdDate: new Date(),
-            completed: false
-        };
-
-        todos.push(newTodo);
-        renderTodos();
-
-        inputNameElement.value = '';
-    } else {
-        alert('Please enter a valid task name. It must be more than three characters, not empty, and start with an uppercase letter.');
+        if (taskText.length > 3 && taskText[0] === taskText[0].toUpperCase() && taskText.trim() !== '') {
+            const newTodo = {
+                id: generateUniqueId(),
+                name: taskText,
+                createdDate: new Date().toISOString(),
+                completed: false
+            };
+            todos.push(newTodo);
+            updateTaskList();
+            taskInput.value = '';
+        } else {
+            alert('Error: Please enter a valid task. It must be more than three characters, not empty, and start with an uppercase letter.');
+        }
     }
-};
-
-const toggleCompleted = (id) => {
-    const todo = todos.find(todo => todo.id === id);
-
-    if (todo) {
-        todo.completed = !todo.completed;
-        renderTodos();
+    function clearTasks() {
+        todos = [];
+        updateTaskList();
     }
-};
-
-const clearList = () => {
-    todos.length = 0;
-    renderTodos();
-};
-
-document.getElementById('addBtn').addEventListener('click', addItem);
-document.getElementById('clearBtn').addEventListener('click', clearList);
-
-renderTodos();
+    function sortTasks() {
+        todos.sort((a, b) => a.name.localeCompare(b.name));
+        updateTaskList();
+    }
+    window.removeTask = function (taskId) {
+        todos = todos.filter(todo => todo.id !== taskId);
+        updateTaskList();
+    };
+    function updateTaskList() {
+        taskList.innerHTML = '';
+        todos.forEach(todo => {
+            const li = document.createElement('li');
+            li.setAttribute('data-id', todo.id);
+            li.innerHTML = `
+                <input type="checkbox" onchange="toggleCompleted(this, '${todo.id}')" ${todo.completed ? 'checked' : ''}>
+                <span style="text-decoration: ${todo.completed ? 'line-through' : 'none'}">${todo.name}</span>
+                <button class="delete-btn" onclick="removeTask('${todo.id}')">Delete</button>
+            `;
+            taskList.appendChild(li);
+        });
+    }
+    function toggleCompleted(checkbox, taskId) {
+        const todo = todos.find(todo => todo.id === taskId);
+        if (todo) {
+            todo.completed = checkbox.checked;
+            updateTaskList();
+        }
+    }
+});
